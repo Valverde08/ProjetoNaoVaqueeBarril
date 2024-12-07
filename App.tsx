@@ -1,5 +1,5 @@
 
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Button, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import {requestForegroundPermissionsAsync,
 getCurrentPositionAsync,
 LocationObject,
@@ -8,6 +8,7 @@ LocationAccuracy
 } from 'expo-location'
 import { useEffect, useState } from 'react';
 import MapView,{Marker, Polygon} from 'react-native-maps';
+import ModalCOmp from './src/Components/btnModal';
 
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
   const [location,SetLocation] = useState<LocationObject | null >(null)
   const [nameLabel, setNameLabel] = useState<string>('')
   const [description,SetDescription] = useState<string>('')
+  const [modalValue,SetModalValue] = useState<booelan>(false)
   const [polygonCoordinates, setPolygonCoordinates] = useState<any>([])
 
 
@@ -66,6 +68,7 @@ export default function App() {
          latitudeDelta:0.005,
          longitudeDelta:0.005,
        }}
+       showsUserLocation={true}
        onPress={handleMapPress}
        
        
@@ -78,29 +81,41 @@ export default function App() {
 
         title={nameLabel}
         description={description}
+        
         />
         
        </MapView> : <Text>Carregando Localização...</Text> }
      
-      <View style={{position:'absolute', top:'70%',backgroundColor:'transparent', gap:5}}>
-        <Text>Título</Text>
-        <TextInput
-        style={{width:250,height:50,borderColor:'#000',borderWidth:1,backgroundColor:'white',borderRadius:5}}
-        value={nameLabel}
-        onChangeText={(text)=>{
-          setNameLabel(text)
-        }}
-        />
-        <Text>Descrição</Text>
-        <TextInput
-        style={{width:250,height:50,borderColor:'#000',borderWidth:1,backgroundColor:'white',borderRadius:5}}
-        value={description}
-        onChangeText={(text)=>{
-          SetDescription(text)
-        }}
-        />
+       {!modalValue && location != null ? 
+       
+         <TouchableOpacity
+         style={styles.btnopt}
+         onPress={()=>SetModalValue(true)}>
+          <Text style={styles.btnopttext}>Opções</Text>
+         </TouchableOpacity>
+       
         
-      </View>
+        
+        : <View></View>}
+        <Modal 
+        animationType='slide'
+        transparent={true}
+        
+        visible={modalValue}
+        onRequestClose={()=>console.log('Modal has been closed')}
+        >
+          <View style={styles.modalContainer}>
+            <ModalCOmp
+            fecharBtn={SetModalValue}
+            labelfunc={setNameLabel}
+            descrifunc={SetDescription}
+            label={nameLabel}
+            description={description}
+            
+            />
+          </View>
+            
+        </Modal>
       
     </View>
   );
@@ -112,5 +127,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    
   },
+  modalContainer:{
+    flex:1,
+    margin:30,
+    justifyContent:'center',
+    alignItems:'center',
+    borderRadius:5
+    
+    },
+    
+    btnopt:{
+      width: 250,
+      height:50,
+      alignItems:'center',
+      justifyContent:"center",
+      backgroundColor:'#485765',
+       borderRadius:10,
+       marginBottom:10,
+
+        
+    },
+    btnopttext:{
+      textAlign:'center',
+      fontSize:24,
+      fontWeight:'600'
+    }
 });
